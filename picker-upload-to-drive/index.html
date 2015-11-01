@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <title>Picker/Upload To Drive</title>
+
+        <script type="text/javascript">
+            function onApiLoad() {
+                gapi.load('auth', { 'callback': onAuthApiLoad });
+                gapi.load('picker');
+            }
+
+            function onAuthApiLoad() {
+                window.gapi.auth.authorize({
+                    'client_id': '489578546234-rcr6bvqam8mv367cj2t5111cui85sfnk.apps.googleusercontent.com',
+                    'scope': ['https://www.googleapis.com/auth/drive']
+                }, handleAuthResult);
+            }
+
+            var oauthToken;
+            function handleAuthResult(authResult) {
+                if (authResult && !authResult.error) {
+                    oauthToken = authResult.access_token;
+                    createPicker();
+                }
+            }
+
+            function createPicker() {
+                var picker = new google.picker.PickerBuilder()
+                        .addView(new google.picker.DocsUploadView()) // Add the upload to Google Drive file view
+                        .addView(new google.picker.DocsView()) // Add the Google Drive file view
+                        .enableFeature(google.picker.Feature.MULTISELECT_ENABLED) // Enable multiselect
+//                        .enableFeature(google.picker.Feature.NAV_HIDDEN) // Disable navigation?
+                        .setOAuthToken(oauthToken)
+                        .setDeveloperKey('AIzaSyAKALf8JjwMyjOrovnU8NbLOkFKzt8IMas')
+                        .setCallback(pickerCallback) // Called when user selects or cancels from picker
+                        .build();
+                picker.setVisible(true);
+            }
+
+            function pickerCallback(data) {
+                if (data.action == google.picker.Action.PICKED) {
+                    //data.docs is an array containing all files selected
+                    console.log(data.docs);
+                } else if (data.action == google.picker.Action.CANCEL) {
+                    console.log('User cancelled selection');
+                }
+            }
+        </script>
+    </head>
+    <body>
+
+    <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+    </body>
+</html>
